@@ -23,6 +23,10 @@ def create_app(config_class=Config):
     os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)
     os.makedirs(app.config['TEMP_FOLDER'], exist_ok=True)
 
+    # Set app instance untuk tasks
+    from app.tasks import set_app
+    set_app(app)
+
     # Register blueprints
     from app.api import api_bp
     app.register_blueprint(api_bp, url_prefix="/api")
