@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.7'
+          memory: 756M
+        reservations:
+          cpus: '0.50'
+          memory: 512M
+    depends_on:
+      - redis
+    restart: always
+
+  worker:
+    build: .
+    command: python worker.py
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 384M
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: always
+    volumes:
+      - redis-data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+
+  # Optional: Tambahkan RQ Dashboard untuk monitoring
+#  dashboard:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.dashboard
+#    ports:
+#      - "9181:9181"
+#    environment:
+#      - RQ_DASHBOARD_REDIS_URL=redis://redis:6379/0
+#    depends_on:
+#      - redis
+#    restart: always
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.1'
+#          memory: 64M
+
+volumes:
+  redis-data:

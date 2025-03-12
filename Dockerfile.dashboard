@@ -1,0 +1,12 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install dependencies dengan versi spesifik
+RUN pip install --no-cache-dir rq>=1.0 rq-dashboard==0.6.1
+
+# Expose dashboard port
+EXPOSE 9181
+
+# Run RQ dashboard
+CMD ["rq-dashboard", "--redis-url", "redis://redis:6379/0", "--port", "9181", "--bind", "0.0.0.0"]
